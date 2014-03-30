@@ -307,6 +307,16 @@
     }
     this.priv.columnSettings.splice(index, amount);
 
+    var rmindices, rmidx;
+    if (this.manualColumnPositions) {
+      // We have removed columns, we also need to remove the indicies from manual column array
+      rmindices = this.manualColumnPositions.splice(index, amount);
+      // We need to remap this array so it remains constant linear from 0->ncols
+      rmidx = Math.min.apply(rmindices);
+      this.manualColumnPositions.map( function (ci) { return ci > rmindex ? (ci - amount) : ci })
+    }
+
+
     this.instance.PluginHooks.run('afterRemoveCol', index, amount);
     this.instance.forceFullRender = true; //used when data was changed
   };

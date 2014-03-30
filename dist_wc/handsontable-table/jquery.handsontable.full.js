@@ -6,7 +6,7 @@
  * Licensed under the MIT license.
  * http://handsontable.com/
  *
- * Date: Thu Mar 20 2014 13:06:05 GMT+0100 (CET)
+ * Date: Sun Mar 30 2014 12:57:07 GMT-0400 (EDT)
  */
 /*jslint white: true, browser: true, plusplus: true, indent: 4, maxerr: 50 */
 
@@ -242,7 +242,6 @@ Handsontable.Core = function (rootElement, userSettings) {
      */
     alter: function (action, index, amount, source, keepEmptyRows) {
       var delta;
-
       amount = amount || 1;
 
       switch (action) {
@@ -261,6 +260,8 @@ Handsontable.Core = function (rootElement, userSettings) {
           break;
 
         case "insert_col":
+          //column order may have changes, so we need to translate the selection column index -> source array index
+          index = instance.runHooksAndReturn('modifyCol', index);
           delta = datamap.createCol(index, amount);
 
           if (delta) {
@@ -289,6 +290,8 @@ Handsontable.Core = function (rootElement, userSettings) {
           break;
 
         case "remove_col":
+          //column order may have changes, so we need to translate the selection column index -> source array index
+          index = instance.runHooksAndReturn('modifyCol', index);
           datamap.removeCol(index, amount);
 
           for(var row = 0, len = datamap.getAll().length; row < len; row++){
@@ -304,7 +307,7 @@ Handsontable.Core = function (rootElement, userSettings) {
             instance.getSettings().colHeaders.splice(index, amount);
           }
 
-          priv.columnSettings.splice(index, amount);
+          //priv.columnSettings.splice(index, amount); This is already done withing datamap:
 
           grid.adjustRowsAndCols();
           selection.refreshBorders(); //it will call render and prepare methods
