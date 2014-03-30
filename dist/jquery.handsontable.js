@@ -6,7 +6,7 @@
  * Licensed under the MIT license.
  * http://handsontable.com/
  *
- * Date: Sun Mar 30 2014 12:57:07 GMT-0400 (EDT)
+ * Date: Sun Mar 30 2014 15:04:47 GMT-0400 (EDT)
  */
 /*jslint white: true, browser: true, plusplus: true, indent: 4, maxerr: 50 */
 
@@ -260,8 +260,8 @@ Handsontable.Core = function (rootElement, userSettings) {
           break;
 
         case "insert_col":
-          //column order may have changes, so we need to translate the selection column index -> source array index
-          index = instance.runHooksAndReturn('modifyCol', index);
+          // //column order may have changes, so we need to translate the selection column index -> source array index
+          // index = instance.runHooksAndReturn('modifyCol', index);
           delta = datamap.createCol(index, amount);
 
           if (delta) {
@@ -8465,6 +8465,49 @@ function HandsontableManualColumnMove() {
       TH.firstChild.appendChild(DIV);
     }
   };
+  // need to reconstruct manualcolpositions after removing columns
+  this.afterRemoveCol = function (index, amount) {
+    if (!this.getSettings().manualColumnMove) return;
+    var rmindx;
+    var colpos = this.manualColumnPositions;
+    // We have removed columns, we also need to remove the indicies from manual column array
+    rmindx = colpos.splice(index, amount);
+    // We need to remap manualColPositions so it remains constant linear from 0->ncols
+    colpos = colpos.map( function (colpos) {
+               var i, newpos = colpos;
+               for (i = 0; i < rmindx.length; i++)
+                 if (colpos > rmindx[i]) newpos--;
+               return newpos;
+             })
+    this.manualColumnPositions = colpos;
+    // saveManualColumnPositions()
+  }
+
+  // need to reconstruct manualcolpositions after adding columns
+  this.afterCreateCol = function (index, amount) {
+    if (!this.getSettings().manualColumnMove) return;
+    var colpos = this.manualColumnPositions;
+    if (!colpos.length) return;
+
+    var addindx = [];
+    for (var i = 0; i < amount; i++) {
+      addindx.push(index + i);
+    }
+
+    if (index >= colpos.length) colpos.concat(addindx);
+    else {
+      // We need to remap manualColPositions so it remains constant linear from 0->ncols
+      colpos = colpos.map( function (colpos) {
+                 return (colpos >= index) ? (colpos + amount) : colpos;
+               })
+      // We have added columns, we also need to add new indicies to manualcolumn position array
+      colpos.splice.apply(colpos, [index, 0].concat(addindx));
+    }
+    this.manualColumnPositions = colpos;
+    // saveManualColumnPositions()
+  }
+
+
 }
 var htManualColumnMove = new HandsontableManualColumnMove();
 
@@ -8477,6 +8520,8 @@ Handsontable.PluginHooks.add('afterUpdateSettings', function () {
   htManualColumnMove.init.call(this, 'afterUpdateSettings')
 });
 Handsontable.PluginHooks.add('afterGetColHeader', htManualColumnMove.getColHeader);
+Handsontable.PluginHooks.add('afterRemoveCol', htManualColumnMove.afterRemoveCol);
+Handsontable.PluginHooks.add('afterCreateCol', htManualColumnMove.afterCreateCol);
 Handsontable.PluginHooks.add('modifyCol', htManualColumnMove.modifyCol);
 
 function HandsontableManualColumnResize() {

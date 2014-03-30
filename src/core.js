@@ -72,8 +72,8 @@ Handsontable.Core = function (rootElement, userSettings) {
           break;
 
         case "insert_col":
-          //column order may have changes, so we need to translate the selection column index -> source array index
-          index = instance.runHooksAndReturn('modifyCol', index);
+          // //column order may have changes, so we need to translate the selection column index -> source array index
+          // index = instance.runHooksAndReturn('modifyCol', index);
           delta = datamap.createCol(index, amount);
 
           if (delta) {
