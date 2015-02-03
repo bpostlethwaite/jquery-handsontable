@@ -329,9 +329,10 @@ WalkontableTableRenderer.prototype.renderColumnHeaders = function () {
       var sourceCol = this.columnFilter.renderedToSource(renderedColumnIndex);
       this.renderColumnHeader(i, sourceCol, TR.childNodes[renderedColumnIndex + this.rowHeaderCount]);
 
-      if(!this.wtTable.isWorkingOnClone()) {
-        this.markIfOversizedColumnHeader(renderedColumnIndex);
-      }
+      // Naive patch: Never call this function because it has side effects.
+      // if(!this.wtTable.isWorkingOnClone()) {
+      //   this.markIfOversizedColumnHeader(renderedColumnIndex);
+      // }
     }
   }
 };
