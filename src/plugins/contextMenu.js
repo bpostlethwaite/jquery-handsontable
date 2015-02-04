@@ -459,7 +459,20 @@
       Handsontable.helper.stopPropagation(event);
 
       var showRowHeaders = this.instance.getSettings().rowHeaders,
-        showColHeaders = this.instance.getSettings().colHeaders;
+          showColHeaders = this.instance.getSettings().colHeaders,
+          testObj = event.target.parentNode,
+          nMax = 12,
+          isCornerClass = false,
+          isTargetInCorner;
+
+      // Disable context menu for corner
+      for (var i = 1; i < nMax; i++) {
+
+          isCornerClass = (testObj.classList.toString().indexOf('ht_clone_corner') > -1);
+          if (isCornerClass) return;
+          testObj = testObj.parentNode;
+
+      }
 
       if (!(showRowHeaders || showColHeaders)) {
         if (event.target.nodeName != 'TD' && !(Handsontable.Dom.hasClass(event.target, 'current') && Handsontable.Dom.hasClass(event.target, 'wtBorder'))) {
