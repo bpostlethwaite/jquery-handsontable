@@ -6,7 +6,7 @@
  * Licensed under the MIT license.
  * http://handsontable.com/
  *
- * Date: Fri Jan 23 2015 10:07:24 GMT+0100 (CET)
+ * Date: Tue Feb 03 2015 19:45:20 GMT-0500 (EST)
  */
 /*jslint white: true, browser: true, plusplus: true, indent: 4, maxerr: 50 */
 
@@ -3531,9 +3531,9 @@ Handsontable.TableView = function (instance) {
 
       isMouseDown = true;
 
-      Handsontable.hooks.run(instance, 'beforeOnCellMouseDown', event, coords, TD);
-
       Handsontable.Dom.enableImmediatePropagation(event);
+
+      Handsontable.hooks.run(instance, 'beforeOnCellMouseDown', event, coords, TD);
 
       if (!event.isImmediatePropagationStopped()) {
 
@@ -9867,7 +9867,20 @@ Handsontable.hooks.register('afterColumnSort');
       Handsontable.helper.stopPropagation(event);
 
       var showRowHeaders = this.instance.getSettings().rowHeaders,
-        showColHeaders = this.instance.getSettings().colHeaders;
+          showColHeaders = this.instance.getSettings().colHeaders,
+          testObj = event.target.parentNode,
+          nMax = 12,
+          isCornerClass = false,
+          isTargetInCorner;
+
+      // Disable context menu for corner
+      for (var i = 1; i < nMax; i++) {
+
+          isCornerClass = (testObj.classList.toString().indexOf('ht_clone_corner') > -1);
+          if (isCornerClass) return;
+          testObj = testObj.parentNode;
+
+      }
 
       if (!(showRowHeaders || showColHeaders)) {
         if (event.target.nodeName != 'TD' && !(Handsontable.Dom.hasClass(event.target, 'current') && Handsontable.Dom.hasClass(event.target, 'wtBorder'))) {
@@ -19595,9 +19608,10 @@ WalkontableTableRenderer.prototype.renderColumnHeaders = function () {
       var sourceCol = this.columnFilter.renderedToSource(renderedColumnIndex);
       this.renderColumnHeader(i, sourceCol, TR.childNodes[renderedColumnIndex + this.rowHeaderCount]);
 
-      if(!this.wtTable.isWorkingOnClone()) {
-        this.markIfOversizedColumnHeader(renderedColumnIndex);
-      }
+      // Naive patch: Never call this function because it has side effects.
+      // if(!this.wtTable.isWorkingOnClone()) {
+      //   this.markIfOversizedColumnHeader(renderedColumnIndex);
+      // }
     }
   }
 };
