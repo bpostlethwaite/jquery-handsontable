@@ -6,7 +6,7 @@
  * Licensed under the MIT license.
  * http://handsontable.com/
  *
- * Date: Tue Feb 03 2015 19:45:20 GMT-0500 (EST)
+ * Date: Mon Feb 16 2015 11:42:29 GMT-0500 (EST)
  */
 /*jslint white: true, browser: true, plusplus: true, indent: 4, maxerr: 50 */
 
@@ -4086,7 +4086,7 @@ Handsontable.TableView.prototype.destroy = function () {
         onKeyDown(originalEvent);
       });
 
-      eventManager.addEventListener(document, 'keydown', function (ev){
+      eventManager.addEventListener(document.documentElement, 'keydown', function (ev){
         instance.runHooks('afterDocumentKeyDown', ev);
       });
 
